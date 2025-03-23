@@ -11,11 +11,32 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-button@latest/dist/emoji-button.min.css">
     <link rel="stylesheet" href="{{ asset('style.css') }}">
     <title>Chat</title>
+    <style>
+        .emoji-picker {
+            position: absolute;
+            bottom: 60px;
+            /* Adjust based on your layout */
+            left: 10px;
+            /* Adjust based on your layout */
+            background: #fff;
+            border: 1px solid #ccc;
+            width: 250px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .emoji {
+            cursor: pointer;
+            font-size: 24px;
+            padding: 5px;
+        }
+    </style>
 </head>
 
 <body>
     <input type="hidden" name="" id="receiverId" value="{{ $receiverId }}">
-    <input type="hidden" name="" id="senderId" value="{{Auth::user()->id}}">
+    <input type="hidden" name="" id="senderId" value="{{ Auth::user()->id }}">
     <div class="sidebar">
         <div class="sidebar-header"><a href="/messenger"
                 style="text-decoration: none;color:white">{{ Auth::user()->name }}</a></div>
@@ -74,15 +95,72 @@
 
         </div>
         <div class="chat-footer">
-            <button id="emoji-button" class="emoji-button"><i class="fa fa-smile"></i></button>
-            <div id="emoji-picker" class="emoji-picker"></div>
+            <button id="emoji-button" class="emoji-button">
+                <i class="fa fa-smile"></i>
+            </button>
+            <div id="emoji-picker" class="emoji-picker" style="display: none;">
+                <!-- Example emojis -->
+                <span class="emoji" data-emoji="😀">😀</span>
+                <span class="emoji" data-emoji="😃">😃</span>
+                <span class="emoji" data-emoji="😄">😄</span>
+                <span class="emoji" data-emoji="😁">😁</span>
+                <span class="emoji" data-emoji="😆">😆</span>
+                <span class="emoji" data-emoji="😅">😅</span>
+                <span class="emoji" data-emoji="🤣">🤣</span>
+                <span class="emoji" data-emoji="😂">😂</span>
+                <span class="emoji" data-emoji="🙂">🙂</span>
+                <span class="emoji" data-emoji="🙃">🙃</span>
+                <span class="emoji" data-emoji="😉">😉</span>
+                <span class="emoji" data-emoji="😊">😊</span>
+                <span class="emoji" data-emoji="😇">😇</span>
+                <span class="emoji" data-emoji="😍">😍</span>
+                <span class="emoji" data-emoji="😘">😘</span>
+                <span class="emoji" data-emoji="😗">😗</span>
+                <span class="emoji" data-emoji="😚">😚</span>
+                <span class="emoji" data-emoji="😋">😋</span>
+                <span class="emoji" data-emoji="😜">😜</span>
+                <span class="emoji" data-emoji="😎">😎</span>
+                <span class="emoji" data-emoji="🤩">🤩</span>
+                <span class="emoji" data-emoji="🥳">🥳</span>
+                <span class="emoji" data-emoji="😏">😏</span>
+                <span class="emoji" data-emoji="😒">😒</span>
+                <span class="emoji" data-emoji="😞">😞</span>
+                <span class="emoji" data-emoji="😔">😔</span>
+                <span class="emoji" data-emoji="😢">😢</span>
+                <span class="emoji" data-emoji="😭">😭</span>
+                <span class="emoji" data-emoji="😤">😤</span>
+                <span class="emoji" data-emoji="😠">😠</span>
+                <span class="emoji" data-emoji="😡">😡</span>
+                <span class="emoji" data-emoji="🤬">🤬</span>
+                <span class="emoji" data-emoji="🤯">🤯</span>
+                <span class="emoji" data-emoji="❤️">❤️</span>
+                <span class="emoji" data-emoji="💙">💙</span>
+                <span class="emoji" data-emoji="💚">💚</span>
+                <span class="emoji" data-emoji="💛">💛</span>
+                <span class="emoji" data-emoji="💜">💜</span>
+                <span class="emoji" data-emoji="🖤">🖤</span>
+                <span class="emoji" data-emoji="💔">💔</span>
+                <span class="emoji" data-emoji="❣️">❣️</span>
+                <span class="emoji" data-emoji="💕">💕</span>
+                <span class="emoji" data-emoji="💞">💞</span>
+                <span class="emoji" data-emoji="💖">💖</span>
+                <span class="emoji" data-emoji="💗">💗</span>
+                <span class="emoji" data-emoji="💘">💘</span>
+                <span class="emoji" data-emoji="💝">💝</span>
+                                
+                <!-- Add more emojis as needed -->
+            </div>
+
             <form id="chatForm" style="display: flex; flex: 1; position: relative;">
                 <input type="hidden" name="user_id" value="{{ $receiverId }}">
                 <input type="text" id="message-input" name="message" class="message-input"
                     placeholder="Type a message...">
-                <button id="send-button" class="send-button" type="button"><i class="fa fa-paper-plane"></i></button>
+                <button id="send-button" class="send-button" type="button">
+                    <i class="fa fa-paper-plane"></i>
+                </button>
             </form>
         </div>
+
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script type="text/javascript">
@@ -208,6 +286,35 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        const emojiButton = document.getElementById('emoji-button');
+        const emojiPicker = document.getElementById('emoji-picker');
+        const messageInput = document.getElementById('message-input');
+
+        // Toggle the emoji picker on emoji button click
+        emojiButton.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevents the click from bubbling up to the document
+            emojiPicker.style.display = (emojiPicker.style.display === 'none' || emojiPicker.style.display === '') ?
+                'block' : 'none';
+        });
+
+        // When an emoji is clicked, append it to the input without hiding the picker
+        emojiPicker.addEventListener('click', function(event) {
+            if (event.target.classList.contains('emoji')) {
+                const selectedEmoji = event.target.getAttribute('data-emoji');
+                messageInput.value += selectedEmoji;
+                event.stopPropagation(); // Prevents the click from closing the picker
+            }
+        });
+
+        // Hide the emoji picker when clicking outside of it
+        document.addEventListener('click', function(event) {
+            if (!emojiPicker.contains(event.target) && event.target !== emojiButton) {
+                emojiPicker.style.display = 'none';
+            }
+        });
     </script>
 </body>
 
